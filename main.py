@@ -14,3 +14,9 @@ info(parameters, True)
 
 #load mesh
 mesh = Mesh('meshes/mesh_fenics.xml')
+V = FunctionSpace(mesh=mesh, family='Lagrange', degree=1)
+W = VectorFunctionSpace(mesh=mesh, family='Lagrange', degree=1, dim=2)
+
+#define boundary conditions
+
+#define variational problems
