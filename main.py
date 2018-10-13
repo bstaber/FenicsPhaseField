@@ -20,3 +20,5 @@ W = VectorFunctionSpace(mesh=mesh, family='Lagrange', degree=1, dim=2)
 #define boundary conditions
 
 #define variational problems
+
+#solver
