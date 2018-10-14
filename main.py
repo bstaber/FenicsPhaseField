@@ -37,15 +37,6 @@ bcs = [bottomBCs, topBC_x, topBC_y]
 
 #define variational problems
 
-gc = 2.7
-lc = 0.0075
-
-lmbda = 1.0
-mu = 1.0
-
-dold, d, s = TrialFunction(V), TrialFunction(V), TestFunction(V)
-uold, u, v = TrialFunction(W), TrialFunction(W), TestFunction(W)
-
 def damageHistory(u):
     str_ele = 0.5*(grad(u) + grad(u).T)
     IC = tr(str_ele)
@@ -61,6 +52,12 @@ def epsilon(u):
 
 def sigma(u):
     return 2.0*mu*epsilon(u) + lmbda*tr(epsilon(u))*Identity(2)
+
+gc, lc = 2.7, 0.0075
+lmbda, mu = 1.0, 10.0
+
+dold, d, s = TrialFunction(V), TrialFunction(V), TestFunction(V)
+uold, u, v = TrialFunction(W), TrialFunction(W), TestFunction(W)
 
 ad = (2.0*damageHistory(uold) + (gc/lc)*dot(d,s))*dx + gc*lc*inner(nabla_grad(d),nabla_grad(s))*dx
 ld = 2.0*damageHistory(uold)*s*dx;
