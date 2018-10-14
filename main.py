@@ -1,26 +1,20 @@
+import matplotlib.pyplot as plt
+
 from fenics import *
 from elasticity import *
-
-import matplotlib.pyplot as plt
+from fenics import *
 
 #parameters
 parameters["linear_algebra_backend"] = "PETSc"
-prm = parameters["krylov_solver"]
-prm["absolute_tolerance"]  = 1E-6
-prm["relative_tolerance"]  = 1E-6
-prm["maximum_iterations"]  = 100
-prm["monitor_convergence"] = True
 set_log_level(LogLevel.PROGRESS)
-
 info(parameters, True)
 
-#load mesh
+#load mesh and define functional spaces
 mesh = Mesh('meshes/mesh_fenics.xml')
 V = FunctionSpace(mesh, 'Lagrange', 1)
 W = VectorFunctionSpace(mesh, 'Lagrange', 1, 2)
 
 #define boundary conditions
-
 ud = Expression("t", t=0.1, degree=1)
 
 def bottom(x, on_boundary):
@@ -37,13 +31,13 @@ topBC_y   = DirichletBC(W.sub(1), Constant(0.0), top)
 
 bcs = [bottomBCs, topBC_x, topBC_y]
 
-# damage-gradient variational problem
+#damage-gradient variational problem
 
 '''
 TO DO
 '''
 
-# elasticity variational problem
+#elasticity variational problem
 
 '''
 TO DO : spectral split, degradation
@@ -65,7 +59,9 @@ solver.parameters["maximum_iterations"]  = 100
 solver.parameters["monitor_convergence"] = True
 solver.set_operator(A)
 
-"""
-u = Function(W)
-solver.solve(u.vector(), b)
-"""
+#staggered algorithm
+'''
+TO DO
+'''
+
+#plots
