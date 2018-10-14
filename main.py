@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 #parameters
 parameters["linear_algebra_backend"] = "PETSc"
 prm = parameters["krylov_solver"]
-prm["absolute_tolerance"]  = 1E-10
+prm["absolute_tolerance"]  = 1E-6
 prm["relative_tolerance"]  = 1E-6
-prm["maximum_iterations"]  = 1000
-prm["monitor_convergence"] = False
+prm["maximum_iterations"]  = 100
+prm["monitor_convergence"] = True
 set_log_level(LogLevel.PROGRESS)
 
-"""info(parameters, True)"""
+info(parameters, True)
 
 #load mesh
 mesh = Mesh('meshes/mesh_fenics.xml')
@@ -19,7 +19,7 @@ W = VectorFunctionSpace(mesh, 'Lagrange', 1, 2)
 
 #define boundary conditions
 
-ud = Expression("t", t=0.0, degree=1)
+ud = Expression("t", t=0.1, degree=1)
 
 def bottom(x, on_boundary):
     tol = 1E-8
@@ -35,33 +35,41 @@ topBC_y   = DirichletBC(W.sub(1), Constant(0.0), top)
 
 bcs = [bottomBCs, topBC_x, topBC_y]
 
-#define variational problems
+# damage-gradient variational problem
 
-def damageHistory(u):
-    str_ele = 0.5*(grad(u) + grad(u).T)
-    IC = tr(str_ele)
-    ICC = tr(str_ele * str_ele)
-    return (0.5*lmbda*IC**2) + mu*ICC
+'''
+TO DO
+'''
 
-def damageFunction(d):
-    tol = 1E-6
-    return (1.0-d)*(1.0-d) + tol
+# elasticity variational problem
+
+'''
+TO DO : spectral split, degradation
+'''
 
 def epsilon(u):
-    return sym(grad(u))
+    return 0.5*(nabla_grad(u) + nabla_grad(u).T)
 
 def sigma(u):
     return 2.0*mu*epsilon(u) + lmbda*tr(epsilon(u))*Identity(2)
 
-gc, lc = 2.7, 0.0075
-lmbda, mu = 1.0, 10.0
+lmbda, mu = 121.15e3, 80.77e3
 
-dold, d, s = TrialFunction(V), TrialFunction(V), TestFunction(V)
-uold, u, v = TrialFunction(W), TrialFunction(W), TestFunction(W)
+v = TestFunction(W)
+u = TrialFunction(W)
 
-ad = (2.0*damageHistory(uold) + (gc/lc)*dot(d,s))*dx + gc*lc*inner(nabla_grad(d),nabla_grad(s))*dx
-ld = 2.0*damageHistory(uold)*s*dx;
+au = inner(sigma(u), epsilon(v))*dx
+lu = dot(Constant((0.0,0.0)),v)*dx
 
-au = damageFunction(dold)*inner(nabla_grad(v),sigma(u))*dx
+A, b = assemble_system(au, lu, bcs)
+solver = PETScKrylovSolver('cg', 'hypre_euclid')
+solver.parameters["absolute_tolerance"]  = 1E-8
+solver.parameters["relative_tolerance"]  = 1E-8
+solver.parameters["maximum_iterations"]  = 100
+solver.parameters["monitor_convergence"] = True
+solver.set_operator(A)
 
-#solver
+"""
+u = Function(W)
+solver.solve(u.vector(), b)
+"""
