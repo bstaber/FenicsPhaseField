@@ -48,13 +48,7 @@ TO DO
 '''
 TO DO : spectral split, degradation
 '''
-"""
-def epsilon(u):
-    return 0.5*(nabla_grad(u) + nabla_grad(u).T)
 
-def sigma(u):
-    return 2.0*mu*epsilon(u) + lmbda*tr(epsilon(u))*Identity(2)
-"""
 lmbda, mu = 121.15e3, 80.77e3
 
 v = TestFunction(W)
