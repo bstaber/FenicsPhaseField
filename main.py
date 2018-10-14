@@ -1,4 +1,6 @@
 from fenics import *
+from elasticity import *
+
 import matplotlib.pyplot as plt
 
 #parameters
@@ -46,19 +48,19 @@ TO DO
 '''
 TO DO : spectral split, degradation
 '''
-
+"""
 def epsilon(u):
     return 0.5*(nabla_grad(u) + nabla_grad(u).T)
 
 def sigma(u):
     return 2.0*mu*epsilon(u) + lmbda*tr(epsilon(u))*Identity(2)
-
+"""
 lmbda, mu = 121.15e3, 80.77e3
 
 v = TestFunction(W)
 u = TrialFunction(W)
 
-au = inner(sigma(u), epsilon(v))*dx
+au = inner(sigma(u,lmbda,mu), epsilon(v))*dx
 lu = dot(Constant((0.0,0.0)),v)*dx
 
 A, b = assemble_system(au, lu, bcs)
