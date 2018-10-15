@@ -100,6 +100,8 @@ u, d = Function(W), Function(V)
 prob_dmge = LinearVariationalProblem(Ad, Ld, d)
 prob_disp = LinearVariationalProblem(Au, Lu, u, bcs)
 
+sigma = sigma_spectral_split(u, uold, dnew, lmbda, mu)
+
 """
 solver_dmge = LinearVariationalSolver(prob_dmge)
 solver_disp = LinearVariationalSolver(prob_disp)
