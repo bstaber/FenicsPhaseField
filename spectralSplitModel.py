@@ -39,7 +39,7 @@ def eigv(T): return map(eval, eigv_expr)
 def eigw(T): return [as_vector(map(eval, vec)) for vec in eigw_expr]
 #----------------------------------------------------------------------#
 
-"""
+
 #----------------------------------------------------------------------#
 # Load mesh and define functional spaces
 mesh = Mesh('meshes/mesh_fenics.xml')
@@ -76,7 +76,7 @@ topBC_x   = DirichletBC(W.sub(0), ud, top)
 bcs = [bottomBCs, topBC_x, topBC_y]
 #----------------------------------------------------------------------#
 
-
+"""
 #----------------------------------------------------------------------#
 # Variational problems
 lmbda, mu = 121.15e3, 80.77e3
