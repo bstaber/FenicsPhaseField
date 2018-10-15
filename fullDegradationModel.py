@@ -5,18 +5,25 @@ from elasticity import *
 from damage import *
 from fenics import *
 
-#parameters
+#----------------------------------------------------------------------#
+# Set some fenics parameters
 parameters["linear_algebra_backend"] = "PETSc"
 set_log_level(LogLevel.CRITICAL)
 info(parameters, False)
+#----------------------------------------------------------------------#
 
-#load mesh and define functional spaces
+
+#----------------------------------------------------------------------#
+# Load mesh and define functional spaces
 mesh = Mesh('meshes/mesh_fenics.xml')
 mesh = refine(mesh)
 V = FunctionSpace(mesh, 'Lagrange', 1)
 W = VectorFunctionSpace(mesh, 'Lagrange', 1, 2)
+#----------------------------------------------------------------------#
 
-#define boundary conditions
+
+#----------------------------------------------------------------------#
+# Define boundary conditions
 ud = Expression("t", t=0.0, degree=1)
 
 def bottom(x, on_boundary):
@@ -40,8 +47,11 @@ topBC_y   = DirichletBC(W.sub(1), Constant(0.0), top)
 topBC_x   = DirichletBC(W.sub(0), ud, top)
 
 bcs = [bottomBCs, topBC_x, topBC_y]
+#----------------------------------------------------------------------#
 
-#variational problems
+
+#----------------------------------------------------------------------#
+# Define variational problems
 lmbda, mu = 121.15e3, 80.77e3
 gc, lc    = 2.7, 0.0075
 
@@ -80,8 +90,11 @@ solver_disp.parameters["linear_solver"] = "gmres"
 solver_disp.parameters["preconditioner"] = "hypre_euclid"
 solver_disp.parameters["krylov_solver"]["relative_tolerance"] = 1E-6
 solver_disp.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
+#----------------------------------------------------------------------#
 
-#staggered algorithm
+
+#----------------------------------------------------------------------#
+# Staggered algorithm
 nsteps = 1000
 delta = 1E-4
 
