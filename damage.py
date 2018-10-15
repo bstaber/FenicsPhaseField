@@ -1,4 +1,4 @@
 from fenics import *
 
-def damageHistory(u):
-    return 0.0*u[0] + 0.0*u[1]
+def degradation(d):
+    (1.0-d)*(1.0-d) + 1E-6
