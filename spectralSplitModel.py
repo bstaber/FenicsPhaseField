@@ -18,14 +18,19 @@ info(parameters, False)
 
 #----------------------------------------------------------------------#
 # Compute the symbolic expression for eigenvalues by sympy
-T = sp.Matrix(2, 2, lambda i, j: sp.Symbol('T[%d, %d]' % (i, j), real=True))
-eig_expr = T.eigenvects()   # ((v, multiplicity, [w])...)
+T = sp.Matrix(2, 2, lambda i, j: sp.Symbol('T[%d, %d]' % (i, j), symmetric =True, real=True))
+eig_expr = T.eigenvects()
 
 eigv = [e[0] for e in eig_expr]
 eigw = [e[-1][0] for e in eig_expr]
 
+eigv = sp.Matrix(eigv)
+eigw = sp.Matrix(eigw)
+eigw = sp.Matrix([[eigw[0],eigw[2]],[eigw[1],eigw[3]]])
+eigv = sp.Matrix([[eigv[0], 0.0],[0.0, eigv[1]]])
+
 eigv_expr = map(str, eigv)
-eigw_expr = [[str(e[0]), str(e[1])] for e in eigw]
+eigw_expr = map(str, eigw)
 #----------------------------------------------------------------------#
 
 
@@ -36,7 +41,7 @@ eigw_expr = [[str(e[0]), str(e[1])] for e in eigw]
 def eigv(T): return map(eval, eigv_expr)
 
 # UFL operator for eigenvectors of 2x2 matrix, a pair of vectors
-def eigw(T): return [as_vector(map(eval, vec)) for vec in eigw_expr]
+def eigw(T): return map(eval, eigw_expr)
 #----------------------------------------------------------------------#
 
 
@@ -76,7 +81,7 @@ topBC_x   = DirichletBC(W.sub(0), ud, top)
 bcs = [bottomBCs, topBC_x, topBC_y]
 #----------------------------------------------------------------------#
 
-"""
+
 #----------------------------------------------------------------------#
 # Variational problems
 lmbda, mu = 121.15e3, 80.77e3
@@ -105,6 +110,7 @@ u, d = Function(W), Function(V)
 prob_dmge = LinearVariationalProblem(Ad, Ld, d)
 prob_disp = LinearVariationalProblem(Au, Lu, u, bcs)
 
+"""
 solver_dmge = LinearVariationalSolver(prob_dmge)
 solver_disp = LinearVariationalSolver(prob_disp)
 
