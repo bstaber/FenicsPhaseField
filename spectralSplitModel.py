@@ -18,30 +18,20 @@ info(parameters, False)
 
 #----------------------------------------------------------------------#
 # Compute the symbolic expression for eigenvalues by sympy
-T = sp.Matrix(2, 2, lambda i, j: sp.Symbol('T[%d, %d]' % (i, j), symmetric =True, real=True))
-eig_expr = T.eigenvects()
+T = sp.Matrix(2, 2, lambda i, j: sp.Symbol('T[%d, %d]' % (i, j), real=True))
+eig_expr = T.eigenvects()   # ((v, multiplicity, [w])...)
 
 eigv = [e[0] for e in eig_expr]
 eigw = [e[-1][0] for e in eig_expr]
 
-eigv = sp.Matrix(eigv)
-eigw = sp.Matrix(eigw)
-eigw = sp.Matrix([[eigw[0],eigw[2]],[eigw[1],eigw[3]]])
-eigv = sp.Matrix([[eigv[0], 0.0],[0.0, eigv[1]]])
-
 eigv_expr = map(str, eigv)
-eigw_expr = map(str, eigw)
-#----------------------------------------------------------------------#
-
-
-#----------------------------------------------------------------------#
-# Create UFL operators for the eigenvalues and eigenvectors
+eigw_expr = [[str(e[0]), str(e[1])] for e in eigw]
 
 # UFL operator for eigenvalues of 2x2 matrix, a pair of scalars
 def eigv(T): return map(eval, eigv_expr)
 
 # UFL operator for eigenvectors of 2x2 matrix, a pair of vectors
-def eigw(T): return map(eval, eigw_expr)
+def eigw(T): return [as_vector(map(eval, vec)) for vec in eigw_expr]
 #----------------------------------------------------------------------#
 
 
