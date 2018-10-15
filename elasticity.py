@@ -11,3 +11,6 @@ def energy_density(u, lambda_, mu):
     IC = tr(strain_tensor)
     ICC = tr(strain_tensor*strain_tensor)
     return (0.5*lambda_*IC**2) + mu*ICC
+
+def epsilon_voigt(u):
+    return as_vector([u[0].dx(0), u[1].dx(1), u[0].dx(1)+u[1].dx(0)])

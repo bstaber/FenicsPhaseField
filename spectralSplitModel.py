@@ -4,6 +4,7 @@ from fenics import *
 from elasticity import *
 from damage import *
 from fenics import *
+import sympy as sp
 
 #parameters
 parameters["linear_algebra_backend"] = "PETSc"
