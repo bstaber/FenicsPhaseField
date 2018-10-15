@@ -67,5 +67,9 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
 
     IdentityVoigt = as_vector([1.0, 1.0, 0.0])
 
-    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(ICold,0.0),1.0,0.0)*IdentityVoigt + 2.0*mu*Ep*eVoigt) \
-           + 0.5*lambda_*conditional(lt(ICold,0.0),1.0,0.0)*IdentityVoigt + 2.0*mu*En*eVoigt
+    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(ICold,0.0),1.0,0.0)*IdentityVoigt)
+
+    """
+    + 2.0*mu*Ep*eVoigt) \
+    + 0.5*lambda_*conditional(lt(ICold,0.0),1.0,0.0)*IdentityVoigt + 2.0*mu*En*eVoigt
+    """

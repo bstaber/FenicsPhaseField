@@ -85,12 +85,12 @@ u, v = TrialFunction(W), TestFunction(W)
 uold, unew = Function(W), Function(W)
 dnew       = Function(V)
 
-histold = energy_density(uold, lmbda, mu)
-histnew = energy_density(unew, lmbda, mu)
+histold = energy_density_positive(uold, lmbda, mu)
+histnew = energy_density_positive(unew, lmbda, mu)
 hist    = Max(histold, histnew)
 
 Id = ((2.0*hist + gc/lc)*dot(d,s) + gc*lc*inner(nabla_grad(d), nabla_grad(s)) - 2.0*hist*s)*dx
-Iu = ((1.0-dnew)*(1.0-dnew)+1E-6)*inner(sigma(u, lmbda, mu), epsilon(v))*dx
+Iu = inner(sigma_spectral_split(u, uold, dnew, lmbda, mu), epsilon_voigt(v))*dx
 
 Ad, Ld = lhs(Id), rhs(Id)
 Au, Lu = lhs(Iu), rhs(Iu)
@@ -100,9 +100,6 @@ u, d = Function(W), Function(V)
 prob_dmge = LinearVariationalProblem(Ad, Ld, d)
 prob_disp = LinearVariationalProblem(Au, Lu, u, bcs)
 
-sigma = sigma_spectral_split(u, uold, dnew, lmbda, mu)
-
-"""
 solver_dmge = LinearVariationalSolver(prob_dmge)
 solver_disp = LinearVariationalSolver(prob_disp)
 
@@ -117,7 +114,7 @@ solver_disp.parameters["krylov_solver"]["relative_tolerance"] = 1E-6
 solver_disp.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
 #----------------------------------------------------------------------#
 
-
+"""
 #----------------------------------------------------------------------#
 # Staggered algorithm
 nsteps = 1000
