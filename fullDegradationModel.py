@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 
 from fenics import *
-from elasticity import *
-from damage import *
-from fenics import *
+from tools.elasticity import *
+from tools.damage import *
 
 #----------------------------------------------------------------------#
 # Set some fenics parameters
@@ -110,8 +109,8 @@ for n in range(nsteps):
 
     solver_dmge.solve()
 
-vtkfile_d = File('damagefield.pvd')
-vtkfile_u = File('displacement.pvd')
+vtkfile_d = File('results/damagefield.pvd')
+vtkfile_u = File('results/displacement.pvd')
 
 vtkfile_d << d
 vtkfile_u << u

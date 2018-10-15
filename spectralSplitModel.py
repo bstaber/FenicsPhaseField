@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 
 from fenics import *
-from elasticity import *
-from damage import *
-from fenics import *
+from tools.elasticity import *
+from tools.damage import *
 import sympy as sp
 
 #----------------------------------------------------------------------#
