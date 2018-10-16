@@ -11,7 +11,7 @@ parameters["form_compiler"]["optimize"]       = True
 parameters["form_compiler"]["cpp_optimize"]   = True
 parameters["form_compiler"]["representation"] = 'uflacs'
 parameters["linear_algebra_backend"]          = "PETSc"
-set_log_level(LogLevel.CRITICAL)
+set_log_level(LogLevel.PROGRESS)
 info(parameters, False)
 #----------------------------------------------------------------------#
 
@@ -65,8 +65,8 @@ def left(x, on_boundary):
     return on_boundary and abs(x[0]) < tol
 
 bottomBCs = DirichletBC(W, Constant((0.0, 0.0)), bottom)
-topBC_y   = DirichletBC(W.sub(1), Constant(0.0), top)
-topBC_x   = DirichletBC(W.sub(0), ud, top)
+topBC_y   = DirichletBC(W.sub(1), ud, top)
+topBC_x   = DirichletBC(W.sub(0), Constant(0.0), top)
 
 bcs = [bottomBCs, topBC_x, topBC_y]
 #----------------------------------------------------------------------#
@@ -117,7 +117,7 @@ solver_disp.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
 
 #----------------------------------------------------------------------#
 # Staggered algorithm
-nsteps = 500
+nsteps = 250
 delta  = 1E-4
 
 for n in range(nsteps):
