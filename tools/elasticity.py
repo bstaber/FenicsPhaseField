@@ -48,7 +48,7 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
     ICold = tr(eold)
     ICnew = tr(e)
 
-    v1, v2, w1, w2 = eigv_eigw_epsilon(e)
+    v1, v2, w1, w2 = eigv_eigw_epsilon(eold)
 
     m1 = as_vector([w1[0]*w1[0], w1[1]*w1[1], w1[0]*w1[1]])
     m2 = as_vector([w2[0]*w2[0], w2[1]*w2[1], w2[0]*w2[1]])
@@ -56,6 +56,7 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
     GabplusGba = as_matrix([[ 4*m1[0]*m2[0],                  4*m1[2]*m2[2],                 2*m1[0]*m2[2] + 2*m1[2]*m2[0] ],
                             [ 4*m1[2]*m2[2],                  4*m1[1]*m2[1],                 2*m1[1]*m2[2] + 2*m1[2]*m2[1] ],
                             [ 2*m1[0]*m2[2] + 2*m1[2]*m2[0],  2*m1[1]*m2[2] + 2*m1[2]*m2[1], m1[0]*m2[1] + m1[1]*m2[0] + 2*m1[2]*m2[2] ]])
+
 
     Ep = conditional(gt(v1,0.0),1.0,0.0)*outer(m1,m1) + conditional(gt(v2,0.0),1.0,0.0)*outer(m2,m2) \
        + conditional(gt(abs(v1-v2),1E-10), (conditional(gt(v1,0.0),v1,0.0)-conditional(gt(v2,0.0),v2,0.0) )*0.5*GabplusGba/(v1-v2), 0.5*GabplusGba)
@@ -67,10 +68,5 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
 
     IdentityVoigt = as_vector([1.0, 1.0, 0.0])
 
-    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(ICold,0.0),1.0,0.0)*ICnew*IdentityVoigt) \
-           + 0.5*lambda_*conditional(lt(ICold,0.0),1.0,0.0)*ICnew*IdentityVoigt
-
-    """
-    + 2.0*mu*Ep*eVoigt) \
-    + 2.0*mu*En*eVoigt
-    """
+    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(ICold,0.0),1.0,0.0)*ICnew*IdentityVoigt) + 2.0*mu*Ep*eVoigt \
+           + 0.5*lambda_*conditional(lt(ICold,0.0),1.0,0.0)*ICnew*IdentityVoigt + 2.0*mu*En*eVoigt
