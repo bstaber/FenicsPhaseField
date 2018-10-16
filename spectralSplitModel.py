@@ -11,11 +11,11 @@ parameters["form_compiler"]["optimize"]       = True
 parameters["form_compiler"]["cpp_optimize"]   = True
 parameters["form_compiler"]["representation"] = 'uflacs'
 parameters["linear_algebra_backend"]          = "PETSc"
-set_log_level(LogLevel.CRITICAL)
+set_log_level(LogLevel.PROGRESS)
 info(parameters, False)
 #----------------------------------------------------------------------#
 
-
+"""
 #----------------------------------------------------------------------#
 # Compute the symbolic expression for eigenvalues by sympy
 T = sp.Matrix(2, 2, lambda i, j: sp.Symbol('T[%d, %d]' % (i, j), real=True))
@@ -33,7 +33,7 @@ def eigv(T): return map(eval, eigv_expr)
 # UFL operator for eigenvectors of 2x2 matrix, a pair of vectors
 def eigw(T): return [as_vector(map(eval, vec)) for vec in eigw_expr]
 #----------------------------------------------------------------------#
-
+"""
 
 #----------------------------------------------------------------------#
 # Load mesh and define functional spaces
@@ -114,11 +114,11 @@ solver_disp.parameters["krylov_solver"]["relative_tolerance"] = 1E-6
 solver_disp.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
 #----------------------------------------------------------------------#
 
-"""
+
 #----------------------------------------------------------------------#
 # Staggered algorithm
-nsteps = 1000
-delta = 1E-4
+nsteps = 500
+delta  = 1E-4
 
 for n in range(nsteps):
     ud.t += delta
@@ -141,4 +141,3 @@ vtkfile_u << u
 plt.figure()
 plot(d, cmap='jet')
 plt.show()
-"""
