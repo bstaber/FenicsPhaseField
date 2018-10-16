@@ -28,10 +28,6 @@ def eigv_eigw_epsilon(e):
     det_e = det(e)
     v1    = 0.5*tr_e + sqrt(tr_e*tr_e/4.0 - det_e)
     v2    = 0.5*tr_e - sqrt(tr_e*tr_e/4.0 - det_e)
-    """
-    norm1 = sqrt(e[0,1]*e[0,1] + (v1-e[0,0])*(v1-e[0,0]))
-    norm2 = sqrt(e[0,1]*e[0,1] + (v2-e[0,0])*(v2-e[0,0]))
-    """
     w1 = as_vector([e[0,1], v1-e[0,0]])
     w2 = as_vector([e[0,1], v2-e[0,0]])
     norm1 = sqrt(dot(w1,w1))
@@ -41,15 +37,17 @@ def eigv_eigw_epsilon(e):
 def eigv_epsilon(e):
     tr_e  = tr(e)
     det_e = det(e)
-    v1    = 0.5*tr_e + sqrt(tr_e*tr_e/4.0 - det_e)
-    v2    = 0.5*tr_e - sqrt(tr_e*tr_e/4.0 - det_e)
+    disc  = sqrt(tr_e*tr_e/4.0 - det_e)
+    v1    = 0.5*tr_e + disc
+    v2    = 0.5*tr_e - disc
     return v1, v2
 
 def energy_density_positive(u, lambda_, mu):
     e        = epsilon(u)
     tr_e     = tr(e)
     v1, v2   = eigv_epsilon(e)
-    v1p, v2p = conditional(gt(v1,0.0),v1,0.0), conditional(gt(v2,0.0),v2,0.0)
+    v1p      = conditional(gt(v1,0.0),v1,0.0)
+    v2p      = conditional(gt(v2,0.0),v2,0.0)
     return 0.5*lambda_*conditional(gt(tr_e,0.0),tr_e,0.0)**2 + 2.0*mu*(v1p*v1p + v2p*v2p)
 
 def sigma_spectral_split(u, uold, dnew, lambda_, mu):
@@ -67,8 +65,6 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
                             [ 4*m1[2]*m2[2],                  4*m1[1]*m2[1],                 2*m1[1]*m2[2] + 2*m1[2]*m2[1] ],
                             [ 2*m1[0]*m2[2] + 2*m1[2]*m2[0],  2*m1[1]*m2[2] + 2*m1[2]*m2[1], m1[0]*m2[1] + m1[1]*m2[0] + 2*m1[2]*m2[2] ]])
 
-    tol = 1E-10
-
     Ep = conditional(gt(v1,0.0),1.0,0.0)*outer(m1,m1) + conditional(gt(v2,0.0),1.0,0.0)*outer(m2,m2) \
        + conditional(gt(abs(v1-v2),tol), (conditional(gt(v1,0.0),v1,0.0)-conditional(gt(v2,0.0),v2,0.0) )*0.5*GabplusGba/(v1-v2), 0.5*GabplusGba)
 
@@ -79,5 +75,5 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
 
     IdentityVoigt = Constant((1.0,1.0,0.0))
 
-    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(tr_eold,0.0),1.0,0.0)*tr_enew*IdentityVoigt + 2.0*mu*Ep*enew_voigt) \
-           + 0.5*lambda_*conditional(lt(tr_eold,0.0),1.0,0.0)*tr_enew*IdentityVoigt + 2.0*mu*En*enew_voigt
+    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(tr_eold,0.0),tr_eold,0.0)*tr_enew*IdentityVoigt + 2.0*mu*Ep*enew_voigt) \
+           + 0.5*lambda_*conditional(lt(tr_eold,0.0),tr_eold,0.0)*tr_enew*IdentityVoigt + 2.0*mu*En*enew_voigt

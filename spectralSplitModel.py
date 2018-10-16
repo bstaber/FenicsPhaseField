@@ -117,7 +117,7 @@ solver_disp.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
 
 #----------------------------------------------------------------------#
 # Staggered algorithm
-nsteps = 100
+nsteps = 500
 delta  = 1E-4
 
 for n in range(nsteps):
