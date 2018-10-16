@@ -11,7 +11,7 @@ parameters["form_compiler"]["optimize"]       = True
 parameters["form_compiler"]["cpp_optimize"]   = True
 parameters["form_compiler"]["representation"] = 'uflacs'
 parameters["linear_algebra_backend"]          = "PETSc"
-set_log_level(LogLevel.PROGRESS)
+set_log_level(LogLevel.CRITICAL)
 info(parameters, False)
 #----------------------------------------------------------------------#
 

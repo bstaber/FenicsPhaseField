@@ -30,8 +30,8 @@ def eigv_eigw_epsilon(e):
     v2    = 0.5*tr_e - sqrt(tr_e*tr_e/4.0 - det_e)
     norm1 = sqrt(e[0,1]*e[0,1] + (v1-e[0,0])*(v1-e[0,0]))
     norm2 = sqrt(e[0,1]*e[0,1] + (v2-e[0,0])*(v2-e[0,0]))
-    w1    = as_vector([e[0,1], v1-e[0,0]])/norm1
-    w2    = as_vector([e[0,1], v2-e[0,0]])/norm2
+    w1 = as_vector([e[0,1], v1-e[0,0]])
+    w2 = as_vector([e[0,1], v2-e[0,0]])
     return v1, v2, w1, w2
 
 def eigv_epsilon(e):
@@ -63,14 +63,13 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
                             [ 2*m1[0]*m2[2] + 2*m1[2]*m2[0],  2*m1[1]*m2[2] + 2*m1[2]*m2[1], m1[0]*m2[1] + m1[1]*m2[0] + 2*m1[2]*m2[2] ]])
 
     tol = 1E-10
-    Ep = conditional(gt(v1,0.0),1.0,0.0)*outer(m1,m1) + conditional(gt(v2,0.0),1.0,0.0)*outer(m2,m2)
-    """
+
+    Ep = conditional(gt(v1,0.0),1.0,0.0)*outer(m1,m1) + conditional(gt(v2,0.0),1.0,0.0)*outer(m2,m2) \
        + conditional(gt(abs(v1-v2),tol), (conditional(gt(v1,0.0),v1,0.0)-conditional(gt(v2,0.0),v2,0.0) )*0.5*GabplusGba/(v1-v2), 0.5*GabplusGba)
-    """
-    En = conditional(lt(v1,0.0),1.0,0.0)*outer(m1,m1) + conditional(lt(v2,0.0),1.0,0.0)*outer(m2,m2)
-    """
+
+    En = conditional(lt(v1,0.0),1.0,0.0)*outer(m1,m1) + conditional(lt(v2,0.0),1.0,0.0)*outer(m2,m2) \
        + conditional(gt(abs(v1-v2),tol), (conditional(lt(v1,0.0),v1,0.0)-conditional(lt(v2,0.0),v2,0.0))*0.5*GabplusGba/(v1-v2), 0.5*GabplusGba)
-    """
+
     enew_voigt = epsilon2voigt(enew)
 
     IdentityVoigt = as_vector([1.0, 1.0, 0.0])
