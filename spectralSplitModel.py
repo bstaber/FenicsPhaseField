@@ -125,8 +125,3 @@ vtkfile_u = File('displacement.pvd')
 
 vtkfile_d << d
 vtkfile_u << u
-"""
-plt.figure()
-plot(d, cmap='jet', range_min=0., range_max=1.)
-plt.show()
-"""
