@@ -18,7 +18,7 @@ info(parameters, False)
 
 #----------------------------------------------------------------------#
 # Load mesh and define functional spaces
-mesh = Mesh('meshes/mesh_fenics2.xml')
+mesh = Mesh('meshes/mesh_fenics.xml')
 mesh = refine(mesh)
 V = FunctionSpace(mesh, 'Lagrange', 1)
 W = VectorFunctionSpace(mesh, 'Lagrange', 1, 2)
@@ -46,8 +46,8 @@ def left(x, on_boundary):
     return on_boundary and abs(x[0]) < tol
 
 bottomBCs = DirichletBC(W, Constant((0.0, 0.0)), bottom)
-topBC_y   = DirichletBC(W.sub(1), Constant(0.0), top)
-topBC_x   = DirichletBC(W.sub(0), ud, top)
+topBC_y   = DirichletBC(W.sub(1), ud, top)
+topBC_x   = DirichletBC(W.sub(0), Constant(0.0), top)
 
 bcs = [bottomBCs, topBC_x, topBC_y]
 #----------------------------------------------------------------------#
@@ -115,10 +115,12 @@ for n in range(nsteps):
 
     solver_dmge.solve()
 
-    plot(d, cmap='jet', range_min=0., range_max=1.)
-    plt.draw()
-    plt.title('Iteration {}'.format(n))
-    plt.pause(0.0001)
+plot(d, cmap='jet', range_min=0., range_max=1.)
+plt.show()
+"""
+plt.title('Iteration {}'.format(n))
+plt.pause(0.0001)
+"""
 
 vtkfile_d = File('damagefield.pvd')
 vtkfile_u = File('displacement.pvd')
