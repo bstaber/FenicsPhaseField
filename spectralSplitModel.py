@@ -15,29 +15,10 @@ set_log_level(LogLevel.PROGRESS)
 info(parameters, False)
 #----------------------------------------------------------------------#
 
-"""
-#----------------------------------------------------------------------#
-# Compute the symbolic expression for eigenvalues by sympy
-T = sp.Matrix(2, 2, lambda i, j: sp.Symbol('T[%d, %d]' % (i, j), real=True))
-eig_expr = T.eigenvects()   # ((v, multiplicity, [w])...)
-
-eigv = [e[0] for e in eig_expr]
-eigw = [e[-1][0] for e in eig_expr]
-
-eigv_expr = map(str, eigv)
-eigw_expr = [[str(e[0]), str(e[1])] for e in eigw]
-
-# UFL operator for eigenvalues of 2x2 matrix, a pair of scalars
-def eigv(T): return map(eval, eigv_expr)
-
-# UFL operator for eigenvectors of 2x2 matrix, a pair of vectors
-def eigw(T): return [as_vector(map(eval, vec)) for vec in eigw_expr]
-#----------------------------------------------------------------------#
-"""
 
 #----------------------------------------------------------------------#
 # Load mesh and define functional spaces
-mesh = Mesh('meshes/mesh_fenics.xml')
+mesh = Mesh('meshes/mesh_fenics2.xml')
 mesh = refine(mesh)
 V = FunctionSpace(mesh, 'Lagrange', 1)
 W = VectorFunctionSpace(mesh, 'Lagrange', 1, 2)
@@ -65,8 +46,8 @@ def left(x, on_boundary):
     return on_boundary and abs(x[0]) < tol
 
 bottomBCs = DirichletBC(W, Constant((0.0, 0.0)), bottom)
-topBC_y   = DirichletBC(W.sub(1), ud, top)
-topBC_x   = DirichletBC(W.sub(0), Constant(0.0), top)
+topBC_y   = DirichletBC(W.sub(1), Constant(0.0), top)
+topBC_x   = DirichletBC(W.sub(0), ud, top)
 
 bcs = [bottomBCs, topBC_x, topBC_y]
 #----------------------------------------------------------------------#
@@ -103,6 +84,7 @@ prob_disp = LinearVariationalProblem(Au, Lu, u, bcs)
 solver_dmge = LinearVariationalSolver(prob_dmge)
 solver_disp = LinearVariationalSolver(prob_disp)
 
+"""
 solver_dmge.parameters["linear_solver"] = "gmres"
 solver_dmge.parameters["preconditioner"] = "hypre_euclid"
 solver_dmge.parameters["krylov_solver"]["relative_tolerance"] = 1E-6
@@ -112,6 +94,7 @@ solver_disp.parameters["linear_solver"] = "gmres"
 solver_disp.parameters["preconditioner"] = "hypre_euclid"
 solver_disp.parameters["krylov_solver"]["relative_tolerance"] = 1E-6
 solver_disp.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
+"""
 #----------------------------------------------------------------------#
 
 
@@ -132,12 +115,18 @@ for n in range(nsteps):
 
     solver_dmge.solve()
 
+    plot(d, cmap='jet', range_min=0., range_max=1.)
+    plt.draw()
+    plt.title('Iteration {}'.format(n))
+    plt.pause(0.0001)
+
 vtkfile_d = File('damagefield.pvd')
 vtkfile_u = File('displacement.pvd')
 
 vtkfile_d << d
 vtkfile_u << u
-
+"""
 plt.figure()
-plot(d, cmap='jet')
+plot(d, cmap='jet', range_min=0., range_max=1.)
 plt.show()
+"""

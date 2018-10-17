@@ -32,6 +32,8 @@ def eigv_eigw_epsilon(e):
     w2    = conditional(gt(abs(e[0,1]),1E-10), as_vector([v2-e[1,1], e[0,1]]), as_vector([0.0, 1.0]))
     norm1 = sqrt(dot(w1,w1))
     norm2 = sqrt(dot(w2,w2))
+    w1    = w1/norm1
+    w2    = w2/norm2
     return v1, v2, w1, w2
 
 def eigv_epsilon(e):
@@ -51,7 +53,7 @@ def energy_density_positive(u, lambda_, mu):
     v2    = 0.5*tr_e - disc
     v1p   = conditional(gt(v1,0.0),v1,0.0)
     v2p   = conditional(gt(v2,0.0),v2,0.0)
-    return 0.5*lambda_*conditional(gt(tr_e*tr_e,0.0),tr_e,0.0) + mu*(v1p*v1p + v2p*v2p)
+    return 0.5*lambda_*conditional(gt(tr_e,0.0),tr_e*tr_e,0.0) + mu*(v1p*v1p + v2p*v2p)
 
 def sigma_spectral_split(u, uold, dnew, lambda_, mu):
     enew    = epsilon(u)
@@ -78,9 +80,10 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
 
     enew_voigt = epsilon2voigt(enew)
     IdentityVoigt = Constant((1.0,1.0,0.0))
-    
+
     """
     return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*tr_enew*IdentityVoigt + 2.0*mu*enew_voigt)
     """
+
     return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(tr_eold,0.0),tr_eold,0.0)*tr_enew*IdentityVoigt + 2.0*mu*Ep*enew_voigt) \
            + 0.5*lambda_*conditional(lt(tr_eold,0.0),tr_eold,0.0)*tr_enew*IdentityVoigt + 2.0*mu*En*enew_voigt
