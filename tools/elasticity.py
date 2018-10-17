@@ -43,12 +43,15 @@ def eigv_epsilon(e):
     return v1, v2
 
 def energy_density_positive(u, lambda_, mu):
-    e        = epsilon(u)
-    tr_e     = tr(e)
-    v1, v2   = eigv_epsilon(e)
-    v1p      = conditional(gt(v1,0.0),v1,0.0)
-    v2p      = conditional(gt(v2,0.0),v2,0.0)
-    return 0.5*lambda_*conditional(gt(tr_e,0.0),tr_e,0.0)**2 + 2.0*mu*(v1p*v1p + v2p*v2p)
+    e     = epsilon(u)
+    tr_e  = tr(e)
+    det_e = det(e)
+    disc  = sqrt(tr_e*tr_e/4.0 - det_e)
+    v1    = 0.5*tr_e + disc
+    v2    = 0.5*tr_e - disc
+    v1p   = conditional(gt(v1,0.0),v1,0.0)
+    v2p   = conditional(gt(v2,0.0),v2,0.0)
+    return 0.5*lambda_*conditional(gt(tr_e*tr_e,0.0),tr_e,0.0) + mu*(v1p*v1p + v2p*v2p)
 
 def sigma_spectral_split(u, uold, dnew, lambda_, mu):
     enew    = epsilon(u)
@@ -65,7 +68,7 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
                             [ 4*m1[2]*m2[2],                  4*m1[1]*m2[1],                 2*m1[1]*m2[2] + 2*m1[2]*m2[1] ],
                             [ 2*m1[0]*m2[2] + 2*m1[2]*m2[0],  2*m1[1]*m2[2] + 2*m1[2]*m2[1], m1[0]*m2[1] + m1[1]*m2[0] + 2*m1[2]*m2[2] ]])
 
-    tol = 1E-8
+    tol = 1E-10
 
     Ep = conditional(gt(v1,0.0),1.0,0.0)*outer(m1,m1) + conditional(gt(v2,0.0),1.0,0.0)*outer(m2,m2) \
        + conditional(gt(abs(v1-v2),tol), (conditional(gt(v1,0.0),v1,0.0)-conditional(gt(v2,0.0),v2,0.0))*0.5*GabplusGba/(v1-v2), 0.5*GabplusGba)
@@ -74,10 +77,10 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
        + conditional(gt(abs(v1-v2),tol), (conditional(lt(v1,0.0),v1,0.0)-conditional(lt(v2,0.0),v2,0.0))*0.5*GabplusGba/(v1-v2), 0.5*GabplusGba)
 
     enew_voigt = epsilon2voigt(enew)
-
     IdentityVoigt = Constant((1.0,1.0,0.0))
+    
+    """
     return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*tr_enew*IdentityVoigt + 2.0*mu*enew_voigt)
     """
     return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(tr_eold,0.0),tr_eold,0.0)*tr_enew*IdentityVoigt + 2.0*mu*Ep*enew_voigt) \
            + 0.5*lambda_*conditional(lt(tr_eold,0.0),tr_eold,0.0)*tr_enew*IdentityVoigt + 2.0*mu*En*enew_voigt
-    """
