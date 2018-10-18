@@ -15,6 +15,7 @@ info(parameters, False)
 #----------------------------------------------------------------------#
 # Load mesh and define functional spaces
 mesh = Mesh('meshes/mesh_fenics.xml')
+dim = mesh.MeshTopology().dim()
 mesh = refine(mesh)
 V = FunctionSpace(mesh, 'Lagrange', 1)
 W = VectorFunctionSpace(mesh, 'Lagrange', 1, 2)
