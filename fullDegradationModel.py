@@ -68,7 +68,7 @@ histnew = energy_density(unew, lmbda, mu)
 hist    = Max(histold, histnew)
 
 Id = ((2.0*hist + gc/lc)*dot(d,s) + gc*lc*inner(nabla_grad(d), nabla_grad(s)) - 2.0*hist*s)*dx
-Iu = ((1.0-dnew)*(1.0-dnew)+1E-6)*inner(sigma(u, lmbda, mu), epsilon(v))*dx
+Iu = ((1.0-dnew)*(1.0-dnew)+1E-6)*inner(sigma(u, lmbda, mu, dim), epsilon(v))*dx
 
 Ad, Ld = lhs(Id), rhs(Id)
 Au, Lu = lhs(Iu), rhs(Iu)

@@ -3,8 +3,8 @@ from fenics import *
 def epsilon(u):
     return 0.5*(nabla_grad(u) + nabla_grad(u).T)
 
-def sigma(u, lambda_, mu):
-    return lambda_*tr(epsilon(u))*Identity(2) + 2*mu*epsilon(u)
+def sigma(u, lambda_, mu, dim):
+    return lambda_*tr(epsilon(u))*Identity(dim) + 2*mu*epsilon(u)
 
 def epsilon_voigt(u):
     return as_vector([u[0].dx(0), u[1].dx(1), u[0].dx(1)+u[1].dx(0)])
