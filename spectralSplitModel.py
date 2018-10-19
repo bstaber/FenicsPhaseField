@@ -40,16 +40,28 @@ def top(x, on_boundary):
 def right(x, on_boundary):
     tol = 1E-8
     return on_boundary and abs(x[0]-1.0) < tol
+    """
+    and x[1] <= 0.055 and x[1] >= 0.045
+    """
 
 def left(x, on_boundary):
     tol = 1E-8
     return on_boundary and abs(x[0]) < tol
+    """
+    and x[1] <= 0.055 and x[1] >= 0.045
+    """
+
 
 bottomBCs = DirichletBC(W, Constant((0.0, 0.0)), bottom)
 topBC_y   = DirichletBC(W.sub(1), ud, top)
 topBC_x   = DirichletBC(W.sub(0), Constant(0.0), top)
-
 bcs = [bottomBCs, topBC_x, topBC_y]
+
+"""
+Beam BC
+leftBC  = DirichletBC(W, Constant((0.0,0.0)), left)
+rightBC = DirichletBC(W.sub(0), ud, right)
+"""
 #----------------------------------------------------------------------#
 
 
