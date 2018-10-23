@@ -69,7 +69,7 @@ histnew = energy_density_positive(unew, lmbda, mu)
 hist    = Max(histold, histnew)
 
 Id = ((2.0*hist + gc/lc)*dot(d,s) + gc*lc*inner(nabla_grad(d), nabla_grad(s)) - 2.0*hist*s)*dx
-Iu = inner(sigma_spectral_split(u, uold, dnew, lmbda, mu), epsilon_voigt(v))*dx
+Iu = inner(linearized_sigma_spectral_split(u, uold, dnew, lmbda, mu), epsilon_voigt(v))*dx
 
 Ad, Ld = lhs(Id), rhs(Id)
 Au, Lu = lhs(Iu), rhs(Iu)

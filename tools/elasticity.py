@@ -55,7 +55,19 @@ def energy_density_positive(u, lambda_, mu):
     v2p   = conditional(gt(v2,0.0),v2,0.0)
     return 0.5*lambda_*conditional(gt(tr_e,0.0),tr_e*tr_e,0.0) + mu*(v1p*v1p + v2p*v2p)
 
-def sigma_spectral_split(u, uold, dnew, lambda_, mu):
+def sigma_spectral_split(u, dnew, lambda_, mu):
+    e    = epsilon(u)
+    tr_e = tr(e)
+    v1, v2, w1, w2 = eigv_eigw_epsilon(e)
+
+    ep = conditional(gt(v1,0.0),v1,0.0)*outer(w1,w1) + conditional(gt(v2,0.0),v2,0.0)*outer(w2,w2)
+    en = conditional(lt(v1,0.0),v1,0.0)*outer(w1,w1) + conditional(lt(v2,0.0),v2,0.0)*outer(w2,w2)
+
+    return ((1.0-dnew)*(1.0-dnew) + 1E-6)*(lambda_*conditional(gt(tr_e,0.0),tr_e,0.0)*Identity(2) + 2.0*mu*ep) \
+                                         + lambda_*conditional(lt(tr_e,0.0),tr_e,0.0)*Identity(2) + 2.0*mu*en
+
+
+def linearized_sigma_spectral_split(u, uold, dnew, lambda_, mu):
     enew    = epsilon(u)
     eold    = epsilon(uold)
     tr_eold = tr(eold)
@@ -78,7 +90,7 @@ def sigma_spectral_split(u, uold, dnew, lambda_, mu):
     En = conditional(lt(v1,0.0),1.0,0.0)*outer(m1,m1) + conditional(lt(v2,0.0),1.0,0.0)*outer(m2,m2) \
        + conditional(gt(abs(v1-v2),tol), (conditional(lt(v1,0.0),v1,0.0)-conditional(lt(v2,0.0),v2,0.0))*0.5*GabplusGba/(v1-v2), 0.5*GabplusGba)
 
-    enew_voigt = epsilon2voigt(enew)
+    enew_voigt    = epsilon2voigt(enew)
     IdentityVoigt = Constant((1.0,1.0,0.0))
 
     """
