@@ -81,18 +81,6 @@ prob_disp = LinearVariationalProblem(Au, Lu, u, bcs)
 
 solver_dmge = LinearVariationalSolver(prob_dmge)
 solver_disp = LinearVariationalSolver(prob_disp)
-
-"""
-solver_dmge.parameters["linear_solver"] = "gmres"
-solver_dmge.parameters["preconditioner"] = "hypre_euclid"
-solver_dmge.parameters["krylov_solver"]["relative_tolerance"] = 1E-6
-solver_dmge.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
-
-solver_disp.parameters["linear_solver"] = "gmres"
-solver_disp.parameters["preconditioner"] = "hypre_euclid"
-solver_disp.parameters["krylov_solver"]["relative_tolerance"] = 1E-6
-solver_disp.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
-"""
 #----------------------------------------------------------------------#
 
 
@@ -101,23 +89,25 @@ solver_disp.parameters["krylov_solver"]["absolute_tolerance"] = 1E-6
 nsteps = 250
 delta  = 1E-4
 
+d.vector().zero()
+dnew.assign(d)
+
+ud.t += delta
+
+uold.assign(u)
+solver_disp.solve()
+unew.assign(u)
+
 for n in range(nsteps):
     ud.t += delta
 
+    solver_dmge.solve()
     dnew.assign(d)
+
     uold.assign(u)
-
     solver_disp.solve()
-
     unew.assign(u)
 
-    solver_dmge.solve()
-
-plot(d, cmap='jet', range_min=0., range_max=1.)
-plt.show()
-
-vtkfile_d = File('damagefield.pvd')
-vtkfile_u = File('displacement.pvd')
-
-vtkfile_d << d
-vtkfile_u << u
+    plot(d, cmap='jet')
+    plt.draw()
+    plt.pause(0.0001)
