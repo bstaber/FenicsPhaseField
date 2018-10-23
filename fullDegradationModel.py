@@ -109,6 +109,10 @@ for n in range(nsteps):
 
     solver_dmge.solve()
 
+    plot(d, cmap='jet')
+    plt.draw()
+    plt.pause(1)
+
 vtkfile_d = File('results/damagefield.pvd')
 vtkfile_u = File('results/displacement.pvd')
 

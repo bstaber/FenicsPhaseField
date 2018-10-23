@@ -9,7 +9,7 @@ parameters["form_compiler"]["optimize"]       = True
 parameters["form_compiler"]["cpp_optimize"]   = True
 parameters["form_compiler"]["representation"] = 'uflacs'
 parameters["linear_algebra_backend"]          = "PETSc"
-set_log_level(LogLevel.PROGRESS)
+set_log_level(LogLevel.CRITICAL)
 info(parameters, False)
 #----------------------------------------------------------------------#
 
@@ -17,9 +17,12 @@ info(parameters, False)
 #----------------------------------------------------------------------#
 # Load mesh and define functional spaces
 mesh = Mesh('meshes/mesh_fenics.xml')
+dim  = mesh.topology().dim()
+"""
 mesh = refine(mesh)
+"""
 V = FunctionSpace(mesh, 'Lagrange', 1)
-W = VectorFunctionSpace(mesh, 'Lagrange', 1, 2)
+W = VectorFunctionSpace(mesh, 'Lagrange', 1, dim)
 #----------------------------------------------------------------------#
 
 
@@ -45,8 +48,8 @@ def left(x, on_boundary):
 
 
 bottomBCs = DirichletBC(W, Constant((0.0, 0.0)), bottom)
-topBC_y   = DirichletBC(W.sub(1), ud, top)
-topBC_x   = DirichletBC(W.sub(0), Constant(0.0), top)
+topBC_y   = DirichletBC(W.sub(0), ud, top)
+topBC_x   = DirichletBC(W.sub(1), Constant(0.0), top)
 bcs = [bottomBCs, topBC_x, topBC_y]
 #----------------------------------------------------------------------#
 
@@ -86,7 +89,7 @@ solver_disp = LinearVariationalSolver(prob_disp)
 
 #----------------------------------------------------------------------#
 # Staggered algorithm
-nsteps = 250
+nsteps = 1000
 delta  = 1E-4
 
 d.vector().zero()
@@ -110,4 +113,4 @@ for n in range(nsteps):
 
     plot(d, cmap='jet')
     plt.draw()
-    plt.pause(0.0001)
+    plt.pause(0.0000001)

@@ -9,7 +9,7 @@ parameters["form_compiler"]["optimize"]       = True
 parameters["form_compiler"]["cpp_optimize"]   = True
 parameters["form_compiler"]["representation"] = 'uflacs'
 parameters["linear_algebra_backend"]          = "PETSc"
-set_log_level(LogLevel.PROGRESS)
+set_log_level(LogLevel.CRITICAL)
 info(parameters, False)
 #----------------------------------------------------------------------#
 
@@ -98,7 +98,6 @@ def energy_density_positive_shear(u):
     v2p   = conditional(gt(v2,0.0),v2,0.0)
     return v1p*v1p + v2p*v2p
 
-"""
 energyold_bulk = energy_density_positive_bulk(uold)
 energynew_bulk = energy_density_positive_bulk(unew)
 
@@ -113,19 +112,12 @@ histnew_1 = lmbda1*energynew_bulk + mu1*energynew_shear
 
 hist_0 = Max(histold_0, histnew_0)
 hist_1 = Max(histold_1, histnew_1)
-"""
-
-histold_0, histnew_0, hist_0 = Function(V), Function(V), Function(V)
-histold_1, histnew_1, hist_1 = Function(V), Function(V), Function(V)
-
-hist_0 = Max(histold_0, histnew_0)
-hist_1 = Max(histold_1, histnew_1)
 
 Id = ((2.0*hist_0 + gc0/lc)*dot(d,s) + gc0*lc*inner(nabla_grad(d), nabla_grad(s)) - 2.0*hist_0*s)*dx(0) \
    + ((2.0*hist_1 + gc1/lc)*dot(d,s) + gc1*lc*inner(nabla_grad(d), nabla_grad(s)) - 2.0*hist_1*s)*dx(1)
 
-Iu = inner(sigma_spectral_split(u, uold, dnew, lmbda0, mu0), epsilon_voigt(v))*dx(0) \
-   + inner(sigma_spectral_split(u, uold, dnew, lmbda1, mu1), epsilon_voigt(v))*dx(1)
+Iu = inner(linearized_sigma_spectral_split(u, uold, dnew, lmbda0, mu0), epsilon_voigt(v))*dx(0) \
+   + inner(linearized_sigma_spectral_split(u, uold, dnew, lmbda1, mu1), epsilon_voigt(v))*dx(1)
 
 Ad, Ld = lhs(Id), rhs(Id)
 Au, Lu = lhs(Iu), rhs(Iu)
@@ -142,39 +134,30 @@ solver_disp = LinearVariationalSolver(prob_disp)
 
 #----------------------------------------------------------------------#
 # Staggered algorithm
-nsteps = 100
-delta  = 1E-3
+nsteps = 1000
+delta  = 1E-4
 
-vtkfile_d = File('results/2d_beam_deterministic/damagefield.pvd')
+vtkfile_d = File('results/damagefield.pvd')
 
-hist_0.vector().zero()
-hist_1.vector().zero()
 d.vector().zero()
+dnew.assign(d)
 
-for n in range(nsteps):
+ud.t += delta
 
+uold.assign(u)
+solver_disp.solve()
+unew.assign(u)
+
+vtkfile_d << (d, 0)
+
+for n in range(1,nsteps+1):
     ud.t += delta
 
-    if (n>0):
-        solver_dmge.solve()
-        dnew.assign(d)
+    solver_dmge.solve()
+    dnew.assign(d)
+
+    vtkfile_d << (d, n)
 
     uold.assign(u)
     solver_disp.solve()
     unew.assign(u)
-
-    energynew_bulk  = energy_density_positive_bulk(unew)
-    energynew_shear = energy_density_positive_shear(unew)
-
-    histnew_0 = lmbda0*energynew_bulk + mu0*energynew_shear
-    histnew_1 = lmbda1*energynew_bulk + mu1*energynew_shear
-
-    histold_0.assign(hist_0)
-    histold_1.assign(hist_1)
-
-    plot(d, cmap='jet')
-    plt.draw()
-    plt.pause(0.0001)
-    """
-    vtkfile_d << (d, n+1)
-    """

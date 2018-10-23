@@ -7,9 +7,7 @@ from tools.elasticity import *
 # Set some Fenics parameters
 parameters["form_compiler"]["optimize"]       = True
 parameters["form_compiler"]["cpp_optimize"]   = True
-"""
 parameters["form_compiler"]["representation"] = "uflacs"
-"""
 parameters["linear_algebra_backend"]          = "PETSc"
 set_log_level(LogLevel.PROGRESS)
 info(parameters, False)
