@@ -93,9 +93,8 @@ def linearized_sigma_spectral_split(u, uold, dnew, lambda_, mu):
     enew_voigt    = epsilon2voigt(enew)
     IdentityVoigt = Constant((1.0,1.0,0.0))
 
-    """
-    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*tr_enew*IdentityVoigt + 2.0*mu*enew_voigt)
-    """
+    Rgt = conditional(gt(tr_eold,0.0),1.0,0.0)
+    Rlt = conditional(lt(tr_eold,0.0),1.0,0.0)
 
-    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*conditional(gt(tr_eold,0.0),tr_eold,0.0)*tr_enew*IdentityVoigt + 2.0*mu*Ep*enew_voigt) \
-           + 0.5*lambda_*conditional(lt(tr_eold,0.0),tr_eold,0.0)*tr_enew*IdentityVoigt + 2.0*mu*En*enew_voigt
+    return ((1.0-dnew)*(1.0-dnew)+1E-6)*(0.5*lambda_*Rgt*tr_enew*IdentityVoigt + 2.0*mu*Ep*enew_voigt) \
+                                       + 0.5*lambda_*Rlt*tr_enew*IdentityVoigt + 2.0*mu*En*enew_voigt

@@ -16,8 +16,9 @@ info(parameters, False)
 
 #----------------------------------------------------------------------#
 # Load mesh and define functional spaces
-mesh = Mesh('meshes/srb.xml')
+mesh = Mesh('meshes/srb_test.xml')
 """
+mesh = refine(mesh)
 mesh = refine(mesh)
 """
 V = FunctionSpace(mesh, 'Lagrange', 1)
@@ -44,7 +45,6 @@ def right(x, on_boundary):
     tol = 1E-8
     return on_boundary and abs(x[0]-1.0) < tol and between(x[1], (0.045, 0.055))
 
-
 def left(x, on_boundary):
     tol = 1E-8
     return on_boundary and abs(x[0]) < tol and between(x[1], (0.045, 0.055))
@@ -53,10 +53,8 @@ def bottom(x, on_boundary):
     tol = 1E-8
     return on_boundary and abs(x[1]) < tol
 
-
 bcs = [DirichletBC(W, Constant((0.0, 0.0)), left),
-       DirichletBC(W.sub(0), ud, right),
-       DirichletBC(W.sub(1), Constant(0.0), right)]
+       DirichletBC(W.sub(0), ud, right)]
 #----------------------------------------------------------------------#
 
 
@@ -98,20 +96,13 @@ def energy_density_positive_shear(u):
     v2p   = conditional(gt(v2,0.0),v2,0.0)
     return v1p*v1p + v2p*v2p
 
-energyold_bulk = energy_density_positive_bulk(uold)
-energynew_bulk = energy_density_positive_bulk(unew)
+histold_0 = energy_density_positive(uold, lmbda0, mu0)
+histnew_0 = energy_density_positive(unew, lmbda0, mu0)
+hist_0    = Max(histold_0, histnew_0)
 
-energyold_shear = energy_density_positive_shear(uold)
-energynew_shear = energy_density_positive_shear(unew)
-
-histold_0 = lmbda0*energyold_bulk + mu0*energyold_shear
-histnew_0 = lmbda0*energynew_bulk + mu0*energynew_shear
-
-histold_1 = lmbda1*energyold_bulk + mu1*energyold_shear
-histnew_1 = lmbda1*energynew_bulk + mu1*energynew_shear
-
-hist_0 = Max(histold_0, histnew_0)
-hist_1 = Max(histold_1, histnew_1)
+histold_1 = energy_density_positive(uold, lmbda1, mu1)
+histnew_1 = energy_density_positive(unew, lmbda1, mu1)
+hist_1    = Max(histold_1, histnew_1)
 
 Id = ((2.0*hist_0 + gc0/lc)*dot(d,s) + gc0*lc*inner(nabla_grad(d), nabla_grad(s)) - 2.0*hist_0*s)*dx(0) \
    + ((2.0*hist_1 + gc1/lc)*dot(d,s) + gc1*lc*inner(nabla_grad(d), nabla_grad(s)) - 2.0*hist_1*s)*dx(1)
@@ -137,7 +128,8 @@ solver_disp = LinearVariationalSolver(prob_disp)
 nsteps = 1000
 delta  = 1E-4
 
-vtkfile_d = File('results/damagefield.pvd')
+vtkfile_d = File('results/2d_beam_deterministic/damage/damagefield.pvd')
+vtkfile_u = File('results/2d_beam_deterministic/disp/displacement.pvd')
 
 d.vector().zero()
 dnew.assign(d)
@@ -149,6 +141,7 @@ solver_disp.solve()
 unew.assign(u)
 
 vtkfile_d << (d, 0)
+vtkfile_u << (u, 0)
 
 for n in range(1,nsteps+1):
     ud.t += delta
@@ -156,8 +149,14 @@ for n in range(1,nsteps+1):
     solver_dmge.solve()
     dnew.assign(d)
 
-    vtkfile_d << (d, n)
-
     uold.assign(u)
     solver_disp.solve()
     unew.assign(u)
+
+    vtkfile_d << (d, n)
+    vtkfile_u << (u, n)
+    """
+    plot(u.sub(0), cmap='jet')
+    plt.draw()
+    plt.pause(0.00001)
+    """
